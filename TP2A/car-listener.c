@@ -40,6 +40,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+//BONUS, simplement une aide personnelle pour filtrer l'écoute sur les infos de la voiture 
+
 // --------------------- partie filter
 
     while (1 == 1)

@@ -45,6 +45,9 @@ int main(int argc, char **argv)
 	frame.can_dlc = 2;
 	sleep(3);
 
+	//Le principe est simple on envoie une instruction précise puis opn attend un certain temps afin que la voityure se trouve la ou on le souhaite avant de passer à l'instruction suivante
+
+	//Partie qui copie la démo des phares, à décommenté pour voir, je l'ai commenté car perte de temps à chaque fois 
 	// // cligno droit
 	// frame.data[0] = 0x00;
 	// frame.data[1] = 0x01;
