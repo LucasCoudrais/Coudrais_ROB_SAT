@@ -57,6 +57,8 @@ int main(int argc, char **argv)
     uint32_t resultFullLeft = -200;
     uint32_t resultFullRight = -200;
 
+    int32_t testEcart = 0x00;
+
     while (1 == 1)
     {
         struct can_filter rfilter[2];
@@ -114,29 +116,40 @@ int main(int argc, char **argv)
                 //principe de palier pour eviter de faire de gros zig zag 
                 if ((resultFullLeft - resultFullRight) > 60 || (resultFullLeft - resultFullRight) < -60)
                 {
-                    currentTurn = resultLeft - resultRight;
+                    // currentTurn = resultLeft - resultRight;
+                    testEcart = resultLeft - resultRight;
+                    if (testEcart < 0)
+                    {
+                        currentTurn = -60;
+                    }
+                    else
+                    {
+                        currentTurn = 60;
+                    }               
                 }
                 else if ((resultFullLeft - resultFullRight) > 40 || (resultFullLeft - resultFullRight) < -40)
                 {
-                    currentTurn = resultLeft - resultRight;
-                    if (currentTurn < 0)
+                    // currentTurn = resultLeft - resultRight;
+                    testEcart = resultLeft - resultRight;
+                    if (testEcart < 0)
                     {
-                        currentTurn = 20;
+                        currentTurn = -40;
                     }
                     else
-                    {
-                        currentTurn = -20;
-                    }
-                } else if ((resultFullLeft - resultFullRight) > 20 || (resultFullLeft - resultFullRight) < -20)
-                {
-                    currentTurn = resultLeft - resultRight;
-                    if (currentTurn < 0)
                     {
                         currentTurn = 40;
                     }
+                } else if ((resultFullLeft - resultFullRight) > 20 || (resultFullLeft - resultFullRight) < -20)
+                {
+                    // currentTurn = resultLeft - resultRight;
+                    testEcart = resultLeft - resultRight;
+                    if (testEcart < 0)
+                    {
+                        currentTurn = -20;
+                    }
                     else
                     {
-                        currentTurn = -40;
+                        currentTurn = 20;
                     }
                 } else {
                     // de base on va tout droit 

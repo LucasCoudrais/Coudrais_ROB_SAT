@@ -214,6 +214,8 @@ On peut alors voir des erreurs de type `error`, `note` ou même `style`. Nous av
 * [misra-c2012-21.6]
 * [misra-c2012-21.10]
 
-Il va donc falloir en corriger au minimum 3 et au mieux toute. Il faut s'aider du fichier donné qui permet d'identifier les erreurs.
+Il va donc falloir en corriger au minimum 3 et au mieux toute. Il faut s'aider du fichier donné qui permet d'identifier les erreurs. </br>
+Un moement j'ai enlevé les return 1 pour tout corriger en remplacant par des exit() mais ca aussi fait une erreur donc pour l'isntant j'ai tout enlevé donc on sort pas du programe quand on a une erreur, voir comment faire.
+Il faut aussi que je corrige l'algo vu que les erreurs on changé la logique de l'algo
 
 
