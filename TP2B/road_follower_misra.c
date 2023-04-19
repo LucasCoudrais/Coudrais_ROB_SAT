@@ -106,32 +106,43 @@ int main(int argc, char **argv)
             resultFullRight = frame.data[frame.can_dlc - 8];
         }
 
-        //On récupère toutes les valeurs des capteurs
+        //On a récupère toutes les valeurs des capteurs
         if(vehicleSpeed != -200 && resultMidLeft != -200 && resultMidRight != -200 && resultLeft != -200 && resultRight != -200 && resultFullLeft != -200 && resultFullRight != -200 ){
             // Prise de décision
             // on ne va pas au dessus de 50km/h
             if (vehicleSpeed <= 50)
             {
+                //On accélere de manière propertionnelle a la route qu'on a devant nous 
+                // normalement j'aurai aimé faire une moyenne entre le midleft et le midright mais j'ai eu quelques soucis avec les division
+                currentAccel = resultMidLeft;
+                currentBrake = 0;
+
                 //Si jamais on voit un écart entre la route a droite et la route a gauche, on tourne en fonction de ca 
                 //principe de palier pour eviter de faire de gros zig zag 
-                if ((resultFullLeft - resultFullRight) > 60 || (resultFullLeft - resultFullRight) < -60)
+                if((resultFullLeft - resultFullRight) < 25 || (resultFullRight - resultFullLeft ) < 25)
+                {
+                    currentTurn = 0;             
+                }
+                else if ((resultFullLeft - resultFullRight) < 50 || (resultFullRight - resultFullLeft) < 50)
                 {
                     // currentTurn = resultLeft - resultRight;
                     testEcart = resultLeft - resultRight;
                     if (testEcart < 0)
                     {
-                        currentTurn = -60;
+                        currentTurn = testEcart + 25;
                     }
                     else
                     {
-                        currentTurn = 60;
-                    }               
-                }
-                else if ((resultFullLeft - resultFullRight) > 40 || (resultFullLeft - resultFullRight) < -40)
+                        currentTurn = testEcart - 25;
+                    }
+                } 
+                else if((resultFullLeft - resultFullRight) < 75 || (resultFullRight - resultFullLeft) < 75)
                 {
-                    // currentTurn = resultLeft - resultRight;
-                    testEcart = resultLeft - resultRight;
-                    if (testEcart < 0)
+                    currentTurn = resultLeft - resultRight;
+
+                } else {
+                    currentAccel = 0;
+                    if ((resultFullLeft - resultFullRight) > 0)
                     {
                         currentTurn = -40;
                     }
@@ -139,29 +150,15 @@ int main(int argc, char **argv)
                     {
                         currentTurn = 40;
                     }
-                } else if ((resultFullLeft - resultFullRight) > 20 || (resultFullLeft - resultFullRight) < -20)
-                {
-                    // currentTurn = resultLeft - resultRight;
-                    testEcart = resultLeft - resultRight;
-                    if (testEcart < 0)
-                    {
-                        currentTurn = -20;
-                    }
-                    else
-                    {
-                        currentTurn = 20;
-                    }
-                } else {
-                    // de base on va tout droit 
-                    currentTurn = 0;
                 }
-                currentBrake = 0;
-                //On accélere de manière propertionnelle a la route qu'on a devant nous 
-                // normalement j'aurai aimé faire une moyenne entre le midleft et le midright mais j'ai eu quelques soucis avec les division
-                currentAccel = resultMidLeft;
+
+                printf("DIFF TOURNER  : %d \n", (resultLeft - resultRight));
+
                 //Si on a pas beaucoup de route devant nous, on arrete d'accélerer et surtout on tourner vers le coté ou on a le plus de route.
                 if (currentAccel < 40)
                 {
+                    printf("DIFF FACE AU MUR  : %d \n", (resultFullLeft - resultFullRight));
+
                     currentAccel = 0;
                     if ((resultFullLeft - resultFullRight) > 0)
                     {
