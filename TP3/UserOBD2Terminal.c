@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     struct ifreq ifr;
     struct can_frame frame;
 
-    printf("Ask info about car \r\n");
+    printf("UserOBD2Terminal :  \r\n");
 
     if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
     {
@@ -63,6 +63,8 @@ int main(int argc, char **argv)
             perror("Write");
             return 1;
         }
+
+
         while (1 == 1)
         {
             struct can_filter rfilter[2];
@@ -92,8 +94,13 @@ int main(int argc, char **argv)
                     break;
                 }
             }
+            if (frame.can_id == (0x00000555 | CAN_EFF_FLAG))
+            {
+                printf("Student allumé, on peut continuer \n ");
+                break;
+            }
         }
-        sleep(2);
+        sleep(3);
 
         // Demande vitesse moteur
         frame.can_id = (0x000007DF | CAN_EFF_FLAG);
@@ -136,19 +143,15 @@ int main(int argc, char **argv)
                 {
                     printf("Motor speed : ");
                     uint32_t result = frame.data[3] | (frame.data[4] << 8); // On inverse l'ordre des bits pour la lecture et on les tranforme en uint32
-                    printf("Demande Accélération throttle0 : ");
                     printf("%" PRIu32 "\n", result);
-                    printf("Demande Accélération throttle1 : ");
                     break;
-                    printf("Demande Accélération throttle2 : ");
                 }
             }
         }
-        printf("Demande Accélération throttle3 : ");
-        sleep(2);
-        printf("Demande Accélération throttle4 : ");
+        sleep(3);
 
         // Demande position pédale de gaz
+        frame.can_id = (0x000007DF | CAN_EFF_FLAG);
         frame.data[0] = 0x02;
         frame.data[1] = 0x01;
         frame.data[2] = 0x11;
@@ -157,15 +160,12 @@ int main(int argc, char **argv)
         frame.data[5] = 0xAA;
         frame.data[6] = 0xAA;
         frame.data[7] = 0xAA;
-        printf("Demande Accélération throttle : ");
-
         if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame))
         {
-            printf("Demande Accélération throttle : ");
             perror("Write");
             return 1;
         }
-        printf("Demande Accélération throttle : ");
+
         while (1 == 1)
         {
             struct can_filter rfilter[2];
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
                 }
             }
         }
-        sleep(2);
+        sleep(3);
     }
 
     if (close(s) < 0)

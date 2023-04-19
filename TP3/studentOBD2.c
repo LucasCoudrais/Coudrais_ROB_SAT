@@ -74,6 +74,24 @@ int main(int argc, char **argv)
 
     frame2.can_dlc = 8;
 
+    //-------- on envoie une trame vide si jamais le temrinal l'écoute c'est qui est sur un read bloquant, donc ca va le débloquer. EN gros on lui envoie un truc pour lui dire qu'on est allumé
+
+    frame2.can_id = (0x00000555 | CAN_EFF_FLAG);
+    frame2.data[0] = 0xAA;
+    frame2.data[1] = 0xAA;
+    frame2.data[2] = 0xAA;
+    frame2.data[3] = 0xAA;
+    frame2.data[4] = 0xAA;
+    frame2.data[5] = 0xAA;
+    frame2.data[6] = 0xAA;
+    frame2.data[7] = 0xAA;
+    if (write(s2, &frame2, sizeof(struct can_frame)) != sizeof(struct can_frame))
+    {
+        perror("Write");
+        return 1;
+    }
+    printf("Envoie signal d'allumage au term \n");
+
     while (1 == 1)
     {
         //-----------------------------------------Partie écouter vcan1
@@ -199,6 +217,8 @@ int main(int argc, char **argv)
                 while (recv(s, &frame, sizeof(frame), MSG_DONTWAIT) != -1)
                     ; // on vide toute la socket pour ne plus avoir des anciennes donnée
 
+                uint32_t counter = 0;
+
                 while (1 == 1)
                 {
                     //---------------------------Partie écouter vcan0
@@ -220,12 +240,34 @@ int main(int argc, char **argv)
                     }
 
                     if (frame.can_id == (0x00000321 | CAN_EFF_FLAG))
-                    { // on lit sur l'id qui correspond a la vitesse
+                    { // on lit sur l'id qui correspond a la THROTTLE
                         frame2.can_id = (0x000007E8 | CAN_EFF_FLAG);
                         frame2.data[0] = 0x03;
                         frame2.data[1] = 0x41;
                         frame2.data[2] = 0x11;
                         frame2.data[3] = frame.data[0];
+                        frame2.data[4] = 0xAA;
+                        frame2.data[5] = 0xAA;
+                        frame2.data[6] = 0xAA;
+                        frame2.data[7] = 0xAA;
+                        if (write(s2, &frame2, sizeof(struct can_frame)) != sizeof(struct can_frame))
+                        {
+                            perror("Write");
+                            return 1;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        counter = counter + 1;
+                    }
+                    if (counter == 100) // si on recoit rien au bout d'un certain temps, on estime que la pedale est pas enfoncé (on ne recoit que quand on donne des instrcution)
+                    {
+                        frame2.can_id = (0x000007E8 | CAN_EFF_FLAG);
+                        frame2.data[0] = 0x03;
+                        frame2.data[1] = 0x41;
+                        frame2.data[2] = 0x11;
+                        frame2.data[3] = 0x00;
                         frame2.data[4] = 0xAA;
                         frame2.data[5] = 0xAA;
                         frame2.data[6] = 0xAA;
