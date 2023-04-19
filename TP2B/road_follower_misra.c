@@ -31,7 +31,8 @@ int main(int argc, char **argv)
     s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if (s < 0)
     {
-        perror("Socket");        
+        perror("Socket");    
+        return 1;    
     }
 
     strcpy(ifr.ifr_name, "vcan0");
@@ -43,7 +44,8 @@ int main(int argc, char **argv)
 
     if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
-        perror("Bind");        
+        perror("Bind");
+        return 1;        
     }
 
     uint32_t currentAccel = 0x00;
@@ -56,8 +58,6 @@ int main(int argc, char **argv)
     uint32_t resultRight = -200;
     uint32_t resultFullLeft = -200;
     uint32_t resultFullRight = -200;
-
-    int32_t testEcart = 0x00;
 
     while (1 == 1)
     {
@@ -73,7 +73,8 @@ int main(int argc, char **argv)
 
         if (nbytes < 0)
         {
-            perror("Read");            
+            perror("Read"); 
+            return 1;           
         }
 
         // Récupération données
@@ -117,48 +118,43 @@ int main(int argc, char **argv)
                 currentAccel = resultMidLeft;
                 currentBrake = 0;
 
+                // de base on va tout droit 
+                currentTurn = 0;
+
                 //Si jamais on voit un écart entre la route a droite et la route a gauche, on tourne en fonction de ca 
                 //principe de palier pour eviter de faire de gros zig zag 
-                if((resultFullLeft - resultFullRight) < 25 || (resultFullRight - resultFullLeft ) < 25)
+                if ((resultFullLeft - resultFullRight) > 25 || (resultFullLeft - resultFullRight) < -25)
                 {
-                    currentTurn = 0;             
-                }
-                else if ((resultFullLeft - resultFullRight) < 50 || (resultFullRight - resultFullLeft) < 50)
-                {
-                    // currentTurn = resultLeft - resultRight;
-                    testEcart = resultLeft - resultRight;
-                    if (testEcart < 0)
+                    if ((resultFullLeft - resultFullRight) > 50 || (resultFullLeft - resultFullRight) < -50)
                     {
-                        currentTurn = testEcart + 25;
+                        currentTurn = resultLeft - resultRight;
+                        if (currentTurn < 0)
+                        {
+                            currentTurn = -14;
+                        }
+                        else
+                        {
+                            currentTurn = 14;
+                        }
                     }
                     else
                     {
-                        currentTurn = testEcart - 25;
+                        currentTurn = resultLeft - resultRight;
+                        if (currentTurn < 0)
+                        {
+                            currentTurn = -7;
+                        }
+                        else
+                        {
+                            currentTurn = 7;
+                        }
                     }
-                } 
-                else if((resultFullLeft - resultFullRight) < 75 || (resultFullRight - resultFullLeft) < 75)
-                {
-                    currentTurn = resultLeft - resultRight;
-
-                } else {
-                    currentAccel = 0;
-                    if ((resultFullLeft - resultFullRight) > 0)
-                    {
-                        currentTurn = -40;
-                    }
-                    else
-                    {
-                        currentTurn = 40;
-                    }
+                    
                 }
-
-                printf("DIFF TOURNER  : %d \n", (resultLeft - resultRight));
 
                 //Si on a pas beaucoup de route devant nous, on arrete d'accélerer et surtout on tourner vers le coté ou on a le plus de route.
                 if (currentAccel < 40)
                 {
-                    printf("DIFF FACE AU MUR  : %d \n", (resultFullLeft - resultFullRight));
-
                     currentAccel = 0;
                     if ((resultFullLeft - resultFullRight) > 0)
                     {
@@ -200,13 +196,15 @@ int main(int argc, char **argv)
         frame.data[2] = currentTurn;
         if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame))
         {
-            perror("Write");            
+            perror("Write");   
+            return 1;         
         }
     }
 
     if (close(s) < 0)
     {
-        perror("Close");        
+        perror("Close");  
+        return 1;      
     }
 
     return 0;

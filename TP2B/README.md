@@ -208,14 +208,19 @@ On peut alors voir des erreurs de type `error`, `note` ou même `style`. Nous av
 * [misra-c2012-10.4]
 * [misra-c2012-12.3] V
 * [misra-c2012-13.4] V
-* [misra-c2012-15.5] V
+* [misra-c2012-15.5]
 * [misra-c2012-15.7] V
 * [misra-c2012-17.7]
 * [misra-c2012-21.6]
 * [misra-c2012-21.10]
 
 Il va donc falloir en corriger au minimum 3 et au mieux toute. Il faut s'aider du fichier donné qui permet d'identifier les erreurs. </br>
-Un moement j'ai enlevé les return 1 pour tout corriger en remplacant par des exit() mais ca aussi fait une erreur donc pour l'isntant j'ai tout enlevé donc on sort pas du programe quand on a une erreur, voir comment faire.
-Il faut aussi que je corrige l'algo vu que les erreurs on changé la logique de l'algo
+
+Un moment j'ai enlevé les return 1 pour tout corriger en remplacant par des exit() mais ca aussi fait une erreur donc pour l'isntant j'ai tout enlevé donc on sort pas du programe quand on a une erreur, voir comment faire.</br>
+
+La correction de ces erreurs m'a permis de me rendre compte de l'importance des outils comme MISRA. </br>
+Pour moi il est très utile pour l'humain dans le sens ou il detecte plusieurs petites erreurs auquelles nous humain nous ne pretons pas attention tant qu'elle ne sont pas critique, les régler permet d'éviter un bug auquel nous n'aurions pas pensé et surtout que nous aurions mis du temps a régler car on n'aurait surement pas pensé qu'une erreur puisse venir d'une chose si petite. </br>
+Ensuite, cet outil m'a permis d'améliorer la lisibilité de mon code ce qui lui permet d'etre facilement maintenable et compréhensible par quelqu'un d'autre ou peut etre par moi plus tard. </br>
+Enfin, certaine regles arthmétique m'ont permis de me rendre compte que mon algo n'était pas bon car une partie des conditions que je testais ne servait finalement a rien. Il m'a donc aussi permis d'améliorer l'algorithmie de mon programme.
 
 
